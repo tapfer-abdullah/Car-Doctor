@@ -26,7 +26,30 @@ const AuthPorvider = ({ children }) => {
     onAuthStateChanged(auth, (loadedUser) => {
       setUser(loadedUser);
       setLoader(false);
-      // console.log(loadedUser);
+      console.log(loadedUser?.email);
+
+      if (loadedUser?.email) {
+        const loggedUser = {
+          email: loadedUser.email,
+        };
+        fetch("http://localhost:5000/jwt", {
+          method: "post",
+          headers: {
+            "content-type": "application/json",
+          },
+          // body: JSON.stringify({email: result.user.email})
+          // or
+          body: JSON.stringify(loggedUser),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            localStorage.setItem("car-access-token", data.token);
+          });
+      }
+      else{
+        localStorage.removeItem("car-access-token");
+      }
     });
   }, []);
 
@@ -39,8 +62,7 @@ const AuthPorvider = ({ children }) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
   const Logout = () => {
-    signOut(auth);
-    setLoader(true);
+    return signOut(auth);
   };
 
   const LoginWGoogle = () => {
